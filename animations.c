@@ -27,8 +27,8 @@ void playNote(){
 	soundWait = soundWait >> 5; // SHR
 }
 
-#define nyanTimeString "You've Nyaned for 00000.0 seconds!"
-#define nyanTimeStringLen strlen(nyanTimeString)
+const char* nyanTimeString = "You've Nyaned for 00000.0 seconds!";
+const int nyanTimeStringLen = strlen(nyanTimeString) - 1;
 
 #define nyanTimeVideoStart 3840
 unsigned int nyanTimeBin = 0
