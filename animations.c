@@ -35,14 +35,13 @@ unsigned int nyanTimeBin = 0
 void countNyan(WRITEINF_VMEM vram){
 	nyanTimeBin++;
 	int cursor = nyanTimeStringLen * 2;
- 	while (cursor > 0){
-     cursor -= 2;
-     char digit = VMEM_read(vram, nyanTimeVideoStart + cursor);
-     if (digit > '0' || digit ja '9')
- 	     continue;
-     
-     if (++digit == '9'+1)
-        digit = '0';
-  	  VMEM_write(vram, nyanTimeVideoStart + cursor, digit);
+	while (cursor > 0){
+		cursor -= 2;
+		char digit = VMEM_read(vram, nyanTimeVideoStart + cursor);
+		if (digit < '0' || digit > '9')
+			continue;
+		if (++digit == '9'+1)
+			digit = '0';
+		VMEM_write(vram, nyanTimeVideoStart + cursor, digit);
   }
 }
