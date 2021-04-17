@@ -22,7 +22,7 @@ void playNote(){
 	freq = freq & 0x1F; // and ah, 00011111b
 
 	// Set the frequency
-	IO_write(0x42, freq);
+	IO_Write(0x42, freq);
 
 	soundWait = soundWait >> 5; // SHR
 }
@@ -32,16 +32,49 @@ void playNote(){
 
 #define nyanTimeVideoStart 3840
 unsigned int nyanTimeBin = 0
-void countNyan(WRITEINF_VMEM vram){
+void countNyan(){
 	nyanTimeBin++;
 	int cursor = nyanTimeStringLen * 2;
 	while (cursor > 0){
 		cursor -= 2;
-		char digit = VMEM_read(vram, nyanTimeVideoStart + cursor);
+		char digit = MEM_Read(0xb800 + nyanTimeVideoStart + cursor);
 		if (digit < '0' || digit > '9')
 			continue;
 		if (++digit == '9'+1)
 			digit = '0';
-		VMEM_write(vram, nyanTimeVideoStart + cursor, digit);
-  }
+		MEM_Write(0xb800 + nyanTimeVideoStart + cursor, digit);
+	}
 }
+
+unsigned int frameIndex = 0;
+#define frameSize (80*50) / 2 // Raw binary size of a frame
+#define lastFrame frames_LEN // very last entry of frames
+unsigned short introPlaying = 1;
+
+void displayFrame() {
+	if (soundIndex < lastIntroNote && introPlaying) {
+		drawIntroFrame();
+		return;
+	}
+
+	if (introPlaying) {
+		// Reset the frame index when the intro is done
+		frameIndex = 0;
+
+		// Revert the message characters
+		for (int i = 0; i < messageLength; i++)
+			MEM_Write(0xb800 + 0x00DC + i, 0);
+		
+		introPlaying = 0;
+	}
+
+	drawNormalFrame();
+	
+	// Reset frame index when the last frame has been reached
+	if (frameIndex > lastFrame)
+		frameIndex = 0;
+}
+
+// todo: %include "Animation/Image/initDrawing.asm"
+// %include "Animation/Image/drawIntroFrame.asm"
+// %include "Animation/Image/drawNormalFrame.asm"
